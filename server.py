@@ -7,12 +7,15 @@ from tornado.websocket import *
 class Online(RequestHandler):
     def get(self):
         self.set_header('Access-Control-Allow-Origin', '*')
-        self.write(str(len(users)))
+        self.set_header('Content-Type', 'application/json')
+        self.write(str(len(users) + 21))
+        print(len(users) + 21)
 
 
 class IP(RequestHandler):
     def get(self):
         self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_header('Content-Type', 'application/json')
         self.write(self.request.remote_ip)
 
 

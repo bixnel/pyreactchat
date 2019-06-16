@@ -7,7 +7,8 @@ import '../styles/App.css';
 class ChatHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {latency: 0};
+    this.state = {latency: 0,
+									users: 'пользователей'};
     this.timer = this.timer.bind(this);
     this.timer();
     setInterval(this.timer, 5000);
@@ -16,22 +17,21 @@ class ChatHeader extends Component {
   timer() {
     const start = new Date().getTime();
     fetch('http://localhost:3333/api/online/')
+			.then((response) => response.json())
       .then(
         (response) => {
-          if (response.status == 200) {
-            const end = new Date().getTime();
-            const latency = end - start;
-            this.setState({latency: latency});
-            if (latency < 70) {
-              this.setState({quality: 'good'});
-            } else if (latency < 250) {
-              this.setState({quality: 'standart'});
-            } else {
-              this.setState({quality: 'bad'});
-            }
+          const end = new Date().getTime();
+          const latency = end - start;
+          this.setState({latency: latency});
+          if (latency < 70) {
+            this.setState({quality: 'good'});
+          } else if (latency < 250) {
+            this.setState({quality: 'standart'});
+          } else {
+            this.setState({quality: 'bad'});
           }
         }
-      )
+      );
   }
 
   render() {
@@ -42,7 +42,7 @@ class ChatHeader extends Component {
         </div>
         <div className="info">
           <h1 className="chatname">{this.props.chatname} <span className={`ping ${this.state.quality}`} data-tip><ReactTooltip getContent={() => (`Задержка: ${this.state.latency}мс`)} /></span></h1>
-          <p className="users">{this.props.online} пользователь онлайн</p>
+          <p className="users">Онлайн: {this.props.online}</p>
         </div>
       </header>
     );
@@ -51,39 +51,28 @@ class ChatHeader extends Component {
 
 
 class ChatBox extends Component {
+	constructor(props) {
+		super(props);
+		this.messages = [['2', 'приветик'], ['2', 'я пукнул в пакетик'], ['1', 'круто!']];
+		this.state = {ip: '1'};
+		fetch('http://localhost:3333/api/ip/')
+			.then((response) => response.text())
+      .then((response) => this.setState({ip: response}));
+		console.log(this.state.ip);
+	}
+
   render() {
     return (
       <section className="chatbox">
-        <div className="msg from-them">Лол привет ваопварполвропрвлапролварпврпловрапловралпорвалпрвалпорлваопрлваорплваорпвлаопрлваопрлваопрлваорпл</div>
-        <div className="msg from-me">Лол привет ваопварполвропрвлапролварпврпловрапловралпорвалпрвалпорлваопрлваорплваорпвлаопрлваопрлваопрлваорпл</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
-        <div className="msg from-them">Лол привет</div>
-        <div className="msg from-me">Добрый день</div>
+				{this.messages.map(
+					(message) => {
+						if (message[1] == this.state.ip) {
+							<div className="msg from-me">{message[2]}</div>
+						} else {
+							<div className="msg from-them">{message[2]}</div>
+						}
+					}
+				)}
       </section>
     );
   }
@@ -94,7 +83,6 @@ class SendMessage extends Component {
   constructor(props) {
     super(props);
     this.state = {message: '',
-									inProcess: false,
 									counter: this.props.counter,
 									connected: false};
     this.send = this.send.bind(this);
@@ -107,7 +95,6 @@ class SendMessage extends Component {
 
   send(message) {
 		if (this.state.connected) {
-    	this.setState({inProcess: true});
 			const data = {action: 'send_message',
 										data: this.state.message};
 			this.ws.send(JSON.stringify(data));
@@ -147,7 +134,7 @@ class Chat extends Component {
   render() {
     return (
 			<main className="chat">
-		    <ChatHeader chatname="Сладкий чат" online="10" />
+		    <ChatHeader chatname="Реактивный чат" online="10" />
 		    <ChatBox />
 		    <SendMessage counter="10" ws={this.ws} />
 		  </main>
