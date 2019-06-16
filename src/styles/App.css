@@ -73,11 +73,21 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 5px;
-  background: #5be500;
-  animation: ping 1.5s ease-in-out infinite;
+  transition: .2s;
 }
-
-@keyframes ping {
+.ping.good {
+  background: #5BE500;
+  animation: good 1.5s ease-in-out infinite;
+}
+.ping.standart {
+  background: #FDD835;
+  animation: standart 1.5s ease-in-out infinite;
+}
+.ping.bad {
+  background: #F44336;
+  animation: bad 1.5s ease-in-out infinite;
+}
+@keyframes good {
   0% {
     box-shadow: 0 0px 2px rgb(91, 229, 0);
   }
@@ -88,7 +98,28 @@ body {
     box-shadow: 0 0px 2px rgb(91, 229, 0);
   }
 }
-
+@keyframes standart {
+  0% {
+    box-shadow: 0 0px 2px rgb(253, 216, 53);
+  }
+  50% {
+    box-shadow: 0 0px 5px rgb(253, 216, 53);
+  }
+  100% {
+    box-shadow: 0 0px 2px rgb(253, 216, 53);
+  }
+}
+@keyframes bad {
+  0% {
+    box-shadow: 0 0px 2px rgb(244, 67, 54);
+  }
+  50% {
+    box-shadow: 0 0px 5px rgb(244, 67, 54);
+  }
+  100% {
+    box-shadow: 0 0px 2px rgb(244, 67, 54);
+  }
+}
 
 
 .chatbox {
@@ -96,6 +127,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
+  overflow-x: hidden;
   height: 100%;
   z-index: 1;
 }
@@ -161,13 +193,36 @@ body {
 .sendmessage {
   background: #fff;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 10px 20px 0 20px;
+  padding: 6px 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
-textarea {
+footer textarea {
   resize: none;
   outline: none;
   border: none;
-  border-bottom: 2px solid red;
   width: 420px;
-  height: 40px;
+  height: 35px;
+}
+.send {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: -3px;
+}
+.send svg {
+  padding: 0;
+}
+.send svg:hover {
+  cursor: pointer;
+}
+.counter {
+  font-size: 13px;
+  color: #727272;
+  margin: 0;
+  margin-top: 3px;
+  padding: 0;
 }
