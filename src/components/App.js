@@ -4,49 +4,50 @@ import '../styles/App.css';
 
 
 
-class Latency extends Component {
+class ChatHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {latency: 0};
+    this.timer = this.timer.bind(this);
+    this.timer();
+    setInterval(this.timer, 5000);
   }
 
   timer() {
     const start = new Date().getTime();
-    fetch("https://ya.ru", {mode: 'cors'})
+    fetch('http://localhost:3333/')
       .then(
         (response) => {
           if (response.status == 200) {
             const end = new Date().getTime();
-            this.setState({latency: end - start});
+            const latency = end - start;
+            this.setState({latency: latency});
+            if (latency < 70) {
+              this.setState({quality: 'good'});
+            } else if (latency < 250) {
+              this.setState({quality: 'standart'});
+            } else {
+              this.setState({quality: 'bad'});
+            }
           }
         }
       )
-    console.log(end - start);
   }
 
   render() {
     return (
-        <span className="ping good" data-tip="Latency: ${this.state.latency}ms"><ReactTooltip /></span>
+      <header className="header">
+        <div className="logo">
+          <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=60" alt="logo" />
+        </div>
+        <div className="info">
+          <h1 className="chatname">{this.props.chatname} <span className={`ping ${this.state.quality}`} data-tip><ReactTooltip getContent={() => (`Задержка: ${this.state.latency}мс`)} /></span></h1>
+          <p className="users">{this.props.online} пользователь онлайн</p>
+        </div>
+      </header>
     );
   }
-
-  componentDidMount() {
-    setInterval(this.timer, 1000);
-  }
 }
-
-
-const ChatHeader = (props) => (
-  <header className="header">
-    <div className="logo">
-      <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=60" alt="logo" />
-    </div>
-    <div className="info">
-      <h1 className="chatname">{props.chatname} <Latency /></h1>
-      <p className="users">{props.online} пользователь онлайн</p>
-    </div>
-  </header>
-)
 
 
 class ChatBox extends Component {
