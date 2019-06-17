@@ -41,11 +41,12 @@ class Chat(WebSocketHandler):
                     'data': messages}
             self.write_message(json.dumps(data))
         elif message['action'] == 'send_message':
-            messages.append([self.request.headers.get('X-Forwarded-For'), message['data'], randint(-2147483648, 2147483647)])
-            data = {'action': 'messages',
-                    'data': messages}
-            for user in users.keys():
-                users[user].write_message(json.dumps(data))
+            if 0 < len(message['data']) <= 140:
+                messages.append([self.request.headers.get('X-Forwarded-For'), message['data'], randint(-2147483648, 2147483647)])
+                data = {'action': 'messages',
+                        'data': messages}
+                for user in users.keys():
+                    users[user].write_message(json.dumps(data))
 
     def on_close(self):
         del users[str(self.request.headers.get('X-Forwarded-For'))]
