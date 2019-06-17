@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import ReactTooltip from 'react-tooltip'
+import ReactTooltip from 'react-tooltip';
+import { animateScroll } from "react-scroll";
 import '../styles/App.css';
 
 
@@ -9,10 +10,10 @@ class ChatHeader extends Component {
     super(props);
     this.state = {latency: 0,
 									quality: 'good'};
+		this.timer = this.timer.bind(this);
     this.timer();
 		this.timer();
 		this.timer();
-		this.timer = this.timer.bind(this);
     setInterval(this.timer, 5000);
 	}
 
@@ -24,19 +25,22 @@ class ChatHeader extends Component {
         (response) => {
           const end = new Date().getTime();
           const latency = end - start;
-          this.setState({latency: latency,
-												 online: parseInt(response)});
+					let quality = 'good';
           if (latency < 70) {
-            this.setState({quality: 'good'});
+            quality = 'good';
           } else if (latency < 250) {
-            this.setState({quality: 'standart'});
+            quality = 'standart';
           } else {
-            this.setState({quality: 'bad'});
+            quality = 'bad';
           }
+					this.setState({latency: latency,
+												 online: parseInt(response),
+											 	 quality: quality});
         }
       )
 			.catch(
 				(error) => {
+					console.log(error);
 					this.setState({latency: -1,
 												 quality: 'bad'});
 				}
@@ -62,16 +66,19 @@ class ChatHeader extends Component {
 class ChatBox extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {ip: '',
-								  chat: []};
+		this.state = {chat: []};
+		this.ready = false;
 		fetch('https://pyreactchat.herokuapp.com/api/ip/')
 			.then((response) => response.text())
-      .then((response) => this.setState({ip: response}));
+      .then((response) => {
+				this.ip = response;
+			});
 		this.ws = this.props.ws;
 		this.ws.onmessage = (response) => {
 			const data = JSON.parse(response.data);
 			if (data['action'] == 'messages') {
-				this.setState({chat: data['data']});
+				this.setState({
+					chat: data['data']});
 			}
 		};
 	}
@@ -79,18 +86,39 @@ class ChatBox extends Component {
   render() {
 		const chat = [];
 		for (const [ip, message, key] of this.state.chat) {
-			if (ip == this.state.ip) {
+			if (ip == this.ip) {
 				chat.push(<div className="msg from-me" key={key}>{message}</div>);
 			} else {
 				chat.push(<div className="msg from-them" key={key}>{message}</div>);
 			}
-		}
+		};
     return (
-      <section className="chatbox">
+      <section className="chatbox" id="chat">
 				{chat}
       </section>
     );
   }
+
+	scrollToBottom(props) {
+		animateScroll.scrollToBottom(props);
+	}
+
+	componentDidUpdate() {
+		if (this.ready) {
+		  this.scrollToBottom({
+	      containerId: "chat",
+				smooth: true,
+				duration: 150
+	    });
+		} else {
+			this.scrollToBottom({
+	      containerId: "chat",
+				smooth: false,
+				duration: 0
+	    });
+			this.ready = true;
+		}
+	}
 }
 
 
