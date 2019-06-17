@@ -17,7 +17,7 @@ class ChatHeader extends Component {
 
   timer() {
     const start = new Date().getTime();
-    fetch('http://localhost:3333/api/online/')
+    fetch('https://pyreactchat.herokuapp.com:3333/api/online/')
 			.then((response) => response.json())
       .then(
         (response) => {
@@ -63,7 +63,7 @@ class ChatBox extends Component {
 		super(props);
 		this.state = {ip: '',
 								  chat: []};
-		fetch('http://localhost:3333/api/ip/')
+		fetch('https://pyreactchat.herokuapp.com:3333/api/ip/')
 			.then((response) => response.text())
       .then((response) => this.setState({ip: response}));
 		this.ws = this.props.ws;
@@ -141,7 +141,7 @@ class SendMessage extends Component {
 class Chat extends Component {
   constructor(props) {
     super(props);
-		this.ws = new WebSocket('ws://localhost:3333/ws/');
+		this.ws = new WebSocket('wss://pyreactchat.herokuapp.com:3333/ws/');
 	}
 
   render() {
