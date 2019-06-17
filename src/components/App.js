@@ -8,7 +8,8 @@ class ChatHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {latency: 0,
-									users: 'пользователей'};
+									quality: 'good',
+									online: 0};
     this.timer = this.timer.bind(this);
     this.timer();
     setInterval(this.timer, 5000);
@@ -22,7 +23,8 @@ class ChatHeader extends Component {
         (response) => {
           const end = new Date().getTime();
           const latency = end - start;
-          this.setState({latency: latency});
+          this.setState({latency: latency,
+												 online: parseInt(response)});
           if (latency < 70) {
             this.setState({quality: 'good'});
           } else if (latency < 250) {
@@ -31,7 +33,13 @@ class ChatHeader extends Component {
             this.setState({quality: 'bad'});
           }
         }
-      );
+      )
+			.catch(
+				(error) => {
+					this.setState({latency: -1,
+												 quality: 'bad'});
+				}
+			);
   }
 
   render() {
@@ -42,7 +50,7 @@ class ChatHeader extends Component {
         </div>
         <div className="info">
           <h1 className="chatname">{this.props.chatname} <span className={`ping ${this.state.quality}`} data-tip><ReactTooltip getContent={() => (`Задержка: ${this.state.latency}мс`)} /></span></h1>
-          <p className="users">Онлайн: {this.props.online}</p>
+          <p className="users">Онлайн: {this.state.online}</p>
         </div>
       </header>
     );
@@ -53,26 +61,32 @@ class ChatHeader extends Component {
 class ChatBox extends Component {
 	constructor(props) {
 		super(props);
-		this.messages = [['2', 'приветик'], ['2', 'я пукнул в пакетик'], ['1', 'круто!']];
-		this.state = {ip: '1'};
+		this.state = {ip: '',
+								  chat: []};
 		fetch('http://localhost:3333/api/ip/')
 			.then((response) => response.text())
       .then((response) => this.setState({ip: response}));
-		console.log(this.state.ip);
+		this.ws = this.props.ws;
+		this.ws.onmessage = (response) => {
+			const data = JSON.parse(response.data);
+			if (data['action'] == 'messages') {
+				this.setState({chat: data['data']});
+			}
+		};
 	}
 
   render() {
+		const chat = [];
+		for (const [ip, message, key] of this.state.chat) {
+			if (ip == this.state.ip) {
+				chat.push(<div className="msg from-me" key={key}>{message}</div>);
+			} else {
+				chat.push(<div className="msg from-them" key={key}>{message}</div>);
+			}
+		}
     return (
       <section className="chatbox">
-				{this.messages.map(
-					(message) => {
-						if (message[1] == this.state.ip) {
-							<div className="msg from-me">{message[2]}</div>
-						} else {
-							<div className="msg from-them">{message[2]}</div>
-						}
-					}
-				)}
+				{chat}
       </section>
     );
   }
@@ -90,7 +104,9 @@ class SendMessage extends Component {
 		this.ws = this.props.ws;
 		this.ws.onopen = () => {
       this.setState({connected: true});
-    };
+			const data = {action: 'get_messages'};
+			this.ws.send(JSON.stringify(data));
+		};
   }
 
   send(message) {
@@ -126,17 +142,14 @@ class Chat extends Component {
   constructor(props) {
     super(props);
 		this.ws = new WebSocket('ws://localhost:3333/ws/');
-		this.ws.onopen = () => {
-      this.ws.send('connected');
-    };
 	}
 
   render() {
     return (
 			<main className="chat">
-		    <ChatHeader chatname="Реактивный чат" online="10" />
-		    <ChatBox />
-		    <SendMessage counter="10" ws={this.ws} />
+		    <ChatHeader chatname="Реактивный чат" />
+		    <ChatBox ws={this.ws} />
+		    <SendMessage counter="140" ws={this.ws} />
 		  </main>
     );
   }

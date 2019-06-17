@@ -131,6 +131,9 @@ body {
   height: 100%;
   z-index: 1;
 }
+.msg:first-child {
+	margin-top: 10px;
+}
 .msg {
   max-width: 255px;
   word-wrap: break-word;
