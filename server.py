@@ -24,7 +24,7 @@ class IP(RequestHandler):
     def get(self):
         self.set_header('Access-Control-Allow-Origin', '*')
         self.set_header('Content-Type', 'application/json')
-        self.write(self.request.headers.get('X-Forwarded-For'))
+        self.write(str(self.request.headers.get('X-Forwarded-For')))
 
 
 class Chat(WebSocketHandler):
@@ -55,8 +55,8 @@ application = Application([
     ('/?$', Index),
     ('/api/online/?$', Online),
     ('/api/ip/?$', IP),
+    ('/ws/?$', Chat),
 ])
-('/ws/?$', Chat),
 
 
 if __name__ == '__main__':
