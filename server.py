@@ -56,7 +56,7 @@ application = Application([
     ('/api/online/?$', Online),
     ('/api/ip/?$', IP),
     ('/ws/?$', Chat),
-])
+], websocket_ping_interval = 25)
 
 
 if __name__ == '__main__':

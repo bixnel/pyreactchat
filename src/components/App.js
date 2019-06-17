@@ -8,10 +8,11 @@ class ChatHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {latency: 0,
-									quality: 'good',
-									online: 0};
-    this.timer = this.timer.bind(this);
+									quality: 'good'};
     this.timer();
+		this.timer();
+		this.timer();
+		this.timer = this.timer.bind(this);
     setInterval(this.timer, 5000);
 	}
 
